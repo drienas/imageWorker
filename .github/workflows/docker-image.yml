@@ -2,7 +2,7 @@ name: Docker Release
 
 on:
   push:
-    branches: [master]
+    tags:
 
 jobs:
   publish:
@@ -10,9 +10,16 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
+
+      - name: Get the version
+        id: get_version
+        run: echo ::set-output name=VERSION::${GITHUB_REF/refs\/tags\//}
+
       - name: Log into registry
         run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login docker.pkg.github.com -u ${{ github.actor }} --password-stdin
+
       - name: Build the Docker image
-        run: docker build . --file Dockerfile --tag docker.pkg.github.com/drienas/imageworker/dsg-imageworker:0.1.2
+        run: docker build . --file Dockerfile --tag docker.pkg.github.com/drienas/imageworker/dsg-imageworker:${{ steps.get_version.outputs.VERSION }}
+
       - name: Deploy the Docker image
-        run: docker push docker.pkg.github.com/drienas/imageworker/dsg-imageworker:0.1.2
+        run: docker push docker.pkg.github.com/drienas/imageworker/dsg-imageworker:${{ steps.get_version.outputs.VERSION }}
