@@ -56,6 +56,8 @@ const runSync = async () => {
     for (let file of files) {
       try {
         if (!/^\w{17}\_\d+\.(jpg|png)$/gi.test(file)) {
+          console.log(`File ${file} does not contain a VIN, skipping...`);
+          continue;
         }
         let fileObject = getDataObject(file);
 
