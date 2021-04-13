@@ -3,6 +3,7 @@ name: Docker Release
 on:
   push:
     tags:
+      - '*'
 
 jobs:
   publish:
