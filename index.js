@@ -5,23 +5,29 @@ const path = require('path');
 const mongo = process.env.MONGO_DB || 'jobrouter6:27017';
 const mongoUrl = `mongodb://${mongo}/cardata`;
 
-const imageSchema = new mongoose.Schema({
-  image: {
-    type: Buffer,
-  },
-  tags: [String],
-  positionIdentifier: Number,
-});
-
-const carSchema = new mongoose.Schema({
-  vin: { type: String, index: true },
-  images: [
-    {
-      positionIdentifier: Number,
-      imageId: mongoose.Types.ObjectId,
+const imageSchema = new mongoose.Schema(
+  {
+    image: {
+      type: Buffer,
     },
-  ],
-});
+    tags: [String],
+    positionIdentifier: Number,
+  },
+  { timestamps: true }
+);
+
+const carSchema = new mongoose.Schema(
+  {
+    vin: { type: String, index: true },
+    images: [
+      {
+        positionIdentifier: Number,
+        imageId: mongoose.Types.ObjectId,
+      },
+    ],
+  },
+  { timestamps: true }
+);
 
 const getDataObject = (file) => {
   let obj = { tags: [] };
