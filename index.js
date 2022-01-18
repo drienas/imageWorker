@@ -70,7 +70,8 @@ const runSync = async () => {
         const Image = mongoose.model('Image', imageSchema);
         const Car = mongoose.model('Car', carSchema);
 
-        const dupeCheckImage = await Image.find({ image: fileObject.binary });
+        // const dupeCheckImage = await Image.find({ image: fileObject.binary });
+        const dupeCheckImage = [];
         let existingCar = await Car.find({ vin: fileObject.vin });
 
         // If the picture does not existing in the Database
