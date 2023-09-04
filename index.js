@@ -29,13 +29,36 @@ const carSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
+function isFileLocked(filepath) {
+  try {
+      const fd = fs.openSync(filepath, 'r+');
+      fs.closeSync(fd);
+      return false;
+  } catch (err) {
+      if (err.code === 'EBUSY' || err.code === 'EPERM') {
+          return true;
+      }
+      throw err; 
+  }
+}
+
 const getDataObject = (file) => {
-  let obj = { tags: [] };
-  obj.binary = fs.readFileSync(path.resolve(__dirname, 'incoming', file));
-  obj.vin = file.match(/\w{17}/gi)[0];
-  obj.positionIdentifier = parseInt(
-    file.replace(/\w{17}\_/gi, '').replace(/\.(jpg|png)/gi, '')
-  );
+  let obj = { tags: [], success: false }; 
+
+  const fullFilePath = path.resolve(__dirname, 'incoming', file);
+  
+  if (!isFileLocked(fullFilePath)) {
+      obj.binary = fs.readFileSync(fullFilePath);
+      obj.vin = file.match(/\w{17}/gi)[0];
+      obj.positionIdentifier = parseInt(
+          file.replace(/\w{17}\_/gi, '').replace(/\.(jpg|png)/gi, '')
+      );
+      obj.success = true; 
+  }
+  else {
+    console.log(`${file} is locked, skipping...`);
+  }
+
   return obj;
 };
 
@@ -66,6 +89,8 @@ const runSync = async () => {
           continue;
         }
         let fileObject = getDataObject(file);
+
+        if(!fileObject.success) continue;
 
         const Image = mongoose.model('Image', imageSchema);
         const Car = mongoose.model('Car', carSchema);
